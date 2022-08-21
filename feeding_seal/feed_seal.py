@@ -23,6 +23,8 @@ homeSeal = pygame.image.load('seal_home.png')
 
 ##character image
 Racc = pygame.image.load('raccoons.png')
+# Racc_right = pygame.image.load('raccoons.png')
+Racc_left = pygame.image.load('raccoons_left.png')
 Seal = pygame.image.load('seal.png')
 
 ##item image
@@ -55,6 +57,8 @@ Rac_width = 900
 Rac_height = 900
 Rac_size = 0.3 
 Racc = pygame.transform.scale(Racc,(Rac_width*Rac_size, Rac_height*Rac_size))
+Racc_left = pygame.transform.scale(Racc_left,(Rac_width*Rac_size, Rac_height*Rac_size))
+Racc_right = pygame.transform.scale(Racc,(Rac_width*Rac_size, Rac_height*Rac_size))
 
 #Seal setting
 Seal_size = 0.3
@@ -107,6 +111,10 @@ Exit_Btn = Button(1000, 700, exitButton, 1)
 global Rac_bag
 Rac_bag = [0,0]
 
+#message setting
+Msg = False
+Msg_Btn = Button(670,400, message, 0.4)
+
 #Start Page
 def GameStartPage():
     global run
@@ -133,7 +141,7 @@ def GameStartPage():
 #get item
 ##open refrigerator
 def open_refri(item):
-    global run, Rac_bag
+    global run, Rac_bag, Rac_x, Rac_y
     while run:
         background.blit(item,(800,10))
         for event in pygame.event.get():
@@ -143,13 +151,15 @@ def open_refri(item):
                     print(Rac_bag)
                 if event.key == pygame.K_ESCAPE:
                     return
+        background.blit(Racc,(Rac_x, Rac_y))
         pygame.display.update()
 
 ##pick gyul
 def pick(item):
-    global run, Rac_bag
+    global run, Rac_bag, Rac_x, Rac_y
     while run:
         background.blit(item,(1300,400))
+        background.blit(Racc,(Rac_x, Rac_y))
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
@@ -176,7 +186,7 @@ def check_inventory(x,y):
         
 #inside the Raccoons's house
 def Game_run1(x, y): 
-    global run, Racc 
+    global run, Racc, Rac_x, Rac_y 
     Rac_x = x
     Rac_y = y
     while run:
@@ -195,8 +205,10 @@ def Game_run1(x, y):
                     Rac_y -=100
                 elif event.key == pygame.K_LEFT:
                     Rac_x -=100
+                    Racc = Racc_left
                 elif event.key == pygame.K_RIGHT:
                     Rac_x +=100
+                    Racc = Racc_right
         check_inventory(630,35)
         #Raccoons don't left the screen
         if Rac_x<=0:
@@ -212,13 +224,15 @@ def Game_run1(x, y):
         if Rac_x >= 1600 and Rac_y >= 800:
             background.fill((255,255,255))
             Game_run2(130,660) 
+        if Rac_x<=0:
+            Game_run3(1590,660)
 
         background.blit(Racc,(Rac_x, Rac_y)) 
         pygame.display.update() 
 
 #page2 : front of Raccoons's house
 def Game_run2(x,y):
-    global run
+    global run, Racc, Msg
     global Rac_x,Rac_y
     Rac_x = x
     Rac_y = y
@@ -243,8 +257,19 @@ def Game_run2(x,y):
                     run = False
                 if event.key == pygame.K_RIGHT:
                     Rac_x+=100
+                    Racc = Racc_right
                 if event.key == pygame.K_LEFT:
                     Rac_x-=100
+                    Racc = Racc_left
+        if Msg == False:
+            if Msg_Btn.draw(background) ==True:
+                if clear == False :
+                    check_message(message_fromseal)
+                    Msg == True
+                if clear==True:
+                    check_message(message_clear)
+                    Msg = True
+
         check_inventory(630,35)
         #Raccoons don't left the screen
         if Rac_x<=0:
@@ -264,7 +289,7 @@ def check_message(message):
         
         for event in pygame.event.get():
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+                if event.key == pygame.K_ESCAPE:
                    return
                 if event.key == pygame.K_q:
                     run = False
@@ -274,7 +299,7 @@ def check_message(message):
 #page3 : go to the farm
 def Game_run3(x,y):
     #print("page3")
-    global Rac_x, Rac_y, run
+    global Rac_x, Rac_y, run, Racc
     Rac_x = x
     Rac_y = y
     
@@ -291,9 +316,11 @@ def Game_run3(x,y):
                     run = False
                 if event.key == pygame.K_RIGHT:
                     Rac_x+=100
+                    Racc = Racc_right
                     #print("right")
                 if event.key == pygame.K_LEFT:
                     Rac_x-=100
+                    Racc = Racc_left
                     #print("left")
         check_inventory(630,35)
         if Rac_x <= 0:
@@ -306,7 +333,7 @@ def Game_run3(x,y):
     
 #page4 : get gyul for seal
 def Game_run4(x,y):
-    global Rac_x, Rac_y, run
+    global Rac_x, Rac_y, run, Racc
     Rac_x = x
     Rac_y = y
     while run:
@@ -320,8 +347,10 @@ def Game_run4(x,y):
                     pick(gyul)
                 if event.key == pygame.K_RIGHT:
                     Rac_x+=100
+                    Racc = Racc_right
                 if event.key == pygame.K_LEFT:
                     Rac_x-=100
+                    Racc = Racc_left
         check_inventory(630,35)
         if Rac_x >= 1600:
             Game_run3(1,660)
@@ -331,7 +360,7 @@ def Game_run4(x,y):
 
 #page5: go to the seal's house
 def Game_run5(x,y):
-    global Rac_x, Rac_y, run
+    global Rac_x, Rac_y, run, Racc
     Rac_x = x
     Rac_y = y
     while run:
@@ -342,8 +371,11 @@ def Game_run5(x,y):
                     run = False
                 if event.key == pygame.K_RIGHT:
                     Rac_x+=100
+                    Racc = Racc_right
                 if event.key == pygame.K_LEFT:
                     Rac_x-=100
+                    Racc = Racc_left
+
         check_inventory(630,35)
         if Rac_x >=1600:
             Game_run6(1,540)
@@ -355,7 +387,7 @@ def Game_run5(x,y):
 
 #page6: seal's house
 def Game_run6(x,y):
-    global Rac_x, Rac_y, run
+    global Rac_x, Rac_y, run, Racc
     Rac_x = x
     Rac_y = y
     while run:
@@ -371,8 +403,10 @@ def Game_run6(x,y):
                     give_food()
                 if event.key == pygame.K_RIGHT:
                     Rac_x+=100
+                    Racc = Racc_right
                 if event.key == pygame.K_LEFT:
                     Rac_x-=100
+                    Racc = Racc_left
         check_inventory(630,35)
         if Rac_x <=0:
             Game_run5(1580,660)
@@ -382,10 +416,11 @@ def Game_run6(x,y):
 
 #give the food to seal
 def give_food():
-    global run, food_select, clear, Rac_bag
+    global run, food_select, clear, Rac_bag, Racc, Msg
     while run:
         if Rac_bag[0] == 0 and Rac_bag[1] == 0:
             clear = True
+            Msg == False
             return
         else :    
             for event in pygame.event.get():
@@ -405,7 +440,7 @@ def give_food():
         pygame.display.update()
                 
 def Game_run7(x,y):
-    global Rac_x, Rac_y, run
+    global Rac_x, Rac_y, run, Racc
     Rac_x = x
     Rac_y = y
     while run:
@@ -417,8 +452,10 @@ def Game_run7(x,y):
                     run = False
                 if event.key == pygame.K_RIGHT:
                     Rac_x+=100
+                    Racc = Racc_right
                 elif event.key == pygame.K_LEFT:
                     Rac_x-=100
+                    Racc = Racc_left
                 elif event.key == pygame.K_UP:
                     Rac_y-=100
                 elif event.key == pygame.K_DOWN:
